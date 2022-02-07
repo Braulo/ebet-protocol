@@ -1,0 +1,21 @@
+version: "2.1"
+services:
+  localtestchain:
+    image: node:16
+    ports:
+      - "8545:8545"
+    command: bash -c "npm i -g ganache-cli && ganache-cli --db /accountdatabase -h 0.0.0.0"
+    volumes:
+      - accountdatabase:/accountdatabase
+  ethereum:
+    container_name: ebet_protocol
+    build: ./
+    stdin_open: true
+    tty: true
+    command: tail -f /dev/null
+    depends_on:
+      - localtestchain
+    volumes:
+      - ./:/app/
+volumes:
+  accountdatabase:
