@@ -10,7 +10,7 @@ describe("poc", () => {
   let no = 0;
   let votesTotal = 0;
 
-  let betters = [
+  let Predictionters = [
     { value: 1, vote: false },
     { value: 50, vote: true },
     { value: 50, vote: true },
@@ -18,9 +18,9 @@ describe("poc", () => {
   ];
 
   it("should calculate the odds for voting no", () => {
-    betters.forEach((better) => {
-      if (!better.vote) {
-        totalNo += better.value;
+    Predictionters.forEach((Predictionter) => {
+      if (!Predictionter.vote) {
+        totalNo += Predictionter.value;
         no++;
       }
     });
@@ -32,13 +32,13 @@ describe("poc", () => {
 
     // Calucates the decimal odds
     oddsNo = +(1 / (propabilityNo / 100)).toFixed(4);
-    assert.equal(oddsNo, 1, "The odds for voting no are wrong");
+    assert.equal(oddsNo, 1, "the odds for voting no are wrong");
   });
 
   it("should calculate the odds for voting yes", () => {
-    betters.forEach((better) => {
-      if (better.vote) {
-        totalYes += better.value;
+    Predictionters.forEach((Predictionter) => {
+      if (Predictionter.vote) {
+        totalYes += Predictionter.value;
         yes++;
       }
     });
@@ -50,30 +50,34 @@ describe("poc", () => {
     // Calucates the decimal odds
     oddsYes = +(1 / (propabilityYes / 100)).toFixed(4);
 
-    assert.equal(oddsYes, 1.3333, "The odds for voting yes are wrong");
+    assert.equal(oddsYes, 1.3333, "the odds for voting yes are wrong");
   });
 
   it("should share the winning ammount evenly considering the total value", () => {
-    for (let i = 0; i < betters.length; i++) {
+    for (let i = 0; i < Predictionters.length; i++) {
       // Winner
-      if (!betters[i].vote) {
+      if (!Predictionters[i].vote) {
         // Percentage of the total value of what the person voted for
         const percentageOfTotalNo = +(
-          (betters[i].value / totalNo) *
+          (Predictionters[i].value / totalNo) *
           100
         ).toFixed(4);
 
         // Percentage(from the total pool the person voted for) of the Loosers total value
         const winValue = (totalYes / 100) * percentageOfTotalNo;
-        betters[i].value += winValue;
+        Predictionters[i].value += winValue;
       }
       // Looser
       else {
         // Losers will just lose their value
-        betters[i].value = 0;
+        Predictionters[i].value = 0;
       }
     }
 
-    assert(betters[0].value, 351, "The winner did get the wrong ammount");
+    assert(
+      Predictionters[0].value,
+      351,
+      "the winner did get the wrong ammount"
+    );
   });
 });
