@@ -27,7 +27,7 @@ contract("EPrediction", (accounts) => {
       });
 
       await predictionContract.predictors(accounts[0]);
-      const totalVotesTrue = await predictionContract.totalVotesVoteTrue();
+      const totalVotesTrue = await predictionContract.totalVotesOutcomeTrue();
 
       assert.equal(totalVotesTrue.toString(), 1, "did not add a new vote");
     });
@@ -40,7 +40,7 @@ contract("EPrediction", (accounts) => {
 
       await predictionContract.predictors(accounts[0]);
       const totalAmmountVotesTrue =
-        await predictionContract.totalAmmountVoteTrue();
+        await predictionContract.totalAmmountOutcomeTrue();
 
       assert.equal(
         totalAmmountVotesTrue.toString(),

@@ -4,10 +4,10 @@ pragma solidity >=0.4.22 <0.9.0;
 contract EPrediction{
     struct Predictor {
         uint ammount;
-        bool vote;
+        bool outcome;
     }
 
-    event Wagered(address indexed predictor, uint _ammount, bool vote);
+    event Wagered(address indexed predictor, uint _ammount, bool outcome);
     event AddedUserToWhitelist(address user);
 
     // user / Predictor
@@ -17,21 +17,21 @@ contract EPrediction{
 
     address[] public participants;
     address creator;
-    bool public predictionClosed;
+    bool public closedPrediction;
     bool public predictionEnded;
     string public condition;
-    uint public totalVotesVoteTrue;
-    uint public totalVotesVoteFalse;
-    uint public totalAmmountVoteTrue;
-    uint public totalAmmountVoteFalse;
+    uint public totalVotesOutcomeTrue;
+    uint public totalVotesOutcomeFalse;
+    uint public totalAmmountOutcomeTrue;
+    uint public totalAmmountOutcomeFalse;
 
 
-    constructor(bool _predictionClosed, string memory _condition, address _creator, address[] memory _whitelist) {
-        predictionClosed = _predictionClosed;
+    constructor(bool _closedPrediction, string memory _condition, address _creator, address[] memory _whitelist) {
+        closedPrediction = _closedPrediction;
         condition = _condition;
         creator = _creator;
 
-        if(predictionClosed){
+        if(closedPrediction){
             for(uint i = 0; i < _whitelist.length; i++){
                 whitelist[_whitelist[i]] = true;
             }
@@ -45,32 +45,32 @@ contract EPrediction{
 
 
     function vote(bool userVote) public payable {
-        require(predictionClosed && whitelist[msg.sender], "you cannot participate in this prediction");
+        require(closedPrediction && whitelist[msg.sender], "you cannot participate in this prediction");
         // Otherwise we can get the right percentage number
-        require((predictors[msg.sender].ammount + msg.value) * 100 > totalAmmountVoteTrue && (predictors[msg.sender].ammount + msg.value)> totalAmmountVoteFalse, 'the max betting size has been reached');
+        require((predictors[msg.sender].ammount + msg.value) * 100 > totalAmmountOutcomeTrue && (predictors[msg.sender].ammount + msg.value)> totalAmmountOutcomeFalse, 'the max betting size has been reached');
 
         predictors[msg.sender] = Predictor(msg.value, userVote);
         participants.push(msg.sender);
 
         if(userVote){
-            totalVotesVoteTrue++;
-            totalAmmountVoteTrue += msg.value;
+            totalVotesOutcomeTrue++;
+            totalAmmountOutcomeTrue += msg.value;
         }
         else{
-            totalVotesVoteFalse++;
-            totalAmmountVoteFalse += msg.value;
+            totalVotesOutcomeFalse++;
+            totalAmmountOutcomeFalse += msg.value;
         }
 
         emit Wagered(msg.sender, msg.value, userVote);
     }
 
-    function endPrediction(bool winner) public onlyCreator {
+    function endPrediction(bool winnerOutcome) public onlyCreator {
         require(predictionEnded == false, "this prediction has already ended");
 
         for(uint i = 0; i < participants.length; i++){
-            if(winner == predictors[participants[i]].vote){
-                uint percentageOfTotal = (predictors[participants[i]].ammount * 100) /  (winner ? totalAmmountVoteTrue : totalAmmountVoteFalse);
-                uint winValue = ((winner ? totalAmmountVoteFalse : totalAmmountVoteTrue) / 100) * percentageOfTotal;
+            if(winnerOutcome == predictors[participants[i]].outcome){
+                uint percentageOfTotal = (predictors[participants[i]].ammount * 100) /  (winnerOutcome ? totalAmmountOutcomeTrue : totalAmmountOutcomeFalse);
+                uint winValue = ((winnerOutcome ? totalAmmountOutcomeFalse : totalAmmountOutcomeTrue) / 100) * percentageOfTotal;
                 predictors[participants[i]].ammount += winValue;
             }
             else{
@@ -90,7 +90,7 @@ contract EPrediction{
     }
 
     function addAddressToWhitelist(address user) public onlyCreator{
-        require(predictionClosed, "this is a public prediction");
+        require(closedPrediction, "this is a public prediction");
 
         whitelist[user] = true;
         emit AddedUserToWhitelist(user);
